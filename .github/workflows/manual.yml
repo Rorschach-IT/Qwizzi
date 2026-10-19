@@ -30,7 +30,7 @@ jobs:
           node-version: '20'
 
       - name: Start containers from root compose
-        run: docker compose --env-file .env.development -f docker-compose.development.yml up -d --build
+        run: docker compose -f docker-compose.development.yml up -d --build
 
       - name: Build React application
         working-directory: app/client/qwizzi
@@ -39,7 +39,7 @@ jobs:
           npm run build
 
       - name: Show running containers
-        run: docker compose --env-file .env.development -f docker-compose.development.yml ps
+        run: docker compose -f docker-compose.development.yml ps
 
   build-and-run-main:
     if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Start production containers from root compose
-        run: docker compose --env-file .env.staging -f docker-compose.staging.yml up -d --build
+        run: docker compose -f docker-compose.staging.yml up -d --build
 
       - name: Show running production containers
-        run: docker compose --env-file .env.staging -f docker-compose.staging.yml ps
+        run: docker compose -f docker-compose.staging.yml ps
