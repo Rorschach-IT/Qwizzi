@@ -1,0 +1,23 @@
+# This file contains the docker-compose configuration for the development environment of the Qwizzi application.
+name: qwizzi-development
+
+services:
+  postgres-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: qwizzi
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    volumes:
+      - qwizzi_postgres_development_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  qwizzi_postgres_development_data:

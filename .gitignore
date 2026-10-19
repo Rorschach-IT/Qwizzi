@@ -491,4 +491,6 @@ baseline.json
 
 # Custom
 .env
+.env.development
+.env.staging
 logs
