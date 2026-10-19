@@ -1,0 +1,63 @@
+name: dev and Main Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  build-and-run-dev:
+    if: github.ref == 'refs/heads/dev' || (github.event_name == 'pull_request' && github.base_ref == 'dev')
+    runs-on: ubuntu-latest
+
+    env:
+      POSTGRES_USER: ${{ secrets.DEV_POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.DEV_POSTGRES_PASSWORD }}
+      POSTGRES_PORT: ${{ secrets.DEV.POSTGRES_PORT }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/client/qwizzi/package-lock.json
+
+      - name: Start containers from root compose
+        run: docker compose --env-file .env.development -f docker-compose.development.yml up -d --build
+
+      - name: Build React application
+        working-directory: app/client/qwizzi
+        run: |
+          npm ci
+          npm run build
+
+      - name: Show running containers
+        run: docker compose --env-file .env.development -f docker-compose.development.yml ps
+
+  build-and-run-main:
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
+    runs-on: ubuntu-latest
+
+    env:
+      POSTGRES_USER: ${{ secrets.STAGE_POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.STAGE_POSTGRES_PASSWORD }}
+      POSTGRES_PORT: ${{ secrets.STAGE.POSTGRES_PORT }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start production containers from root compose
+        run: docker compose --env-file .env.staging -f docker-compose.staging.yml up -d --build
+
+      - name: Show running production containers
+        run: docker compose --env-file .env.staging -f docker-compose.staging.yml ps
