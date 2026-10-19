@@ -21,7 +21,7 @@ assert_command_exists docker
 
 start_step "Starting Docker containers"
 cd "${REPO_ROOT}"
-docker compose --env-file .env.staging -f docker-compose.staging.yml up -d --build
+docker compose -f docker-compose.staging.yml --env-file .env.staging up -d --build
 
 echo "Docker containers started successfully."
 
@@ -32,7 +32,7 @@ echo ""
 echo "Useful commands:"
 echo "  docker compose ps"
 echo "  docker compose logs -f"
-echo "  docker compose --env-file .env.staging -f docker-compose.staging.yml down"
+echo "  docker compose -f docker-compose.staging.yml --env-file .env.staging down"
 echo ""
 
 docker compose logs -f
