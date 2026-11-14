@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Qwizzi.Api/Qwizzi.Api.csproj" />
+    <Project Path="src/Qwizzi.Application/Qwizzi.Application.csproj" />
+    <Project Path="src/Qwizzi.Domain/Qwizzi.Domain.csproj" />
+    <Project Path="src/Qwizzi.Infrastructure/Qwizzi.Infrastructure.csproj" />
+  </Folder>
+</Solution>
