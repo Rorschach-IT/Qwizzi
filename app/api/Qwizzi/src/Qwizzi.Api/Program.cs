@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Qwizzi.Api.Authentication;
+using Qwizzi.Api.ErrorHandling;
 using Qwizzi.Application.Abstractions.Persistence;
 using Qwizzi.Application.Authentication;
 using Qwizzi.Domain.Entities;
@@ -22,7 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 
-// Loads the PostgreSQL connection string and stops startup
+// Loads the Postgresql connection string and stops startup
 // immediately if the required configuration is missing.
 var connectionString =
     builder.Configuration.GetConnectionString("Database")
@@ -115,10 +116,15 @@ builder.Services.AddScoped<
     PasswordService>();
 
 
+// For global exception handling
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+
 // Registers application-level registration and login workflows.
 // HTTP responses and authentication cookies remain the controller's
 // responsibility.
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 
 // Registers controllers and the MVC services required
@@ -171,7 +177,7 @@ builder.Services.AddRateLimiter(options =>
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = 10,
-                Window = TimeSpan.FromMinutes(1),
+                Window = TimeSpan.FromMinutes(120),
                 QueueLimit = 0,
                 AutoReplenishment = true
             }));
@@ -190,7 +196,7 @@ app.UseHttpsRedirection();
 // Exposes API documentation only in the Development environment.
 //
 // The OpenAPI document is explicitly public so that the fallback
-// authorization policy does not prevent loading it before login.
+// authorization policy does not prevent loading it before log in.
 // Swagger UI is registered before authentication and authorization.
 if (app.Environment.IsDevelopment())
 {
@@ -204,6 +210,51 @@ if (app.Environment.IsDevelopment())
             "Qwizzi API v1");
 
         options.RoutePrefix = "swagger";
+
+        options.UseRequestInterceptor(
+            """
+            function (request) {
+                var url = new URL(request.url, window.location.origin);
+                var method = (request.method || "GET").toUpperCase();
+
+                var modifyingMethods = [
+                    "POST",
+                    "PUT",
+                    "PATCH",
+                    "DELETE"
+                ];
+
+                if (url.origin !== window.location.origin ||
+                    !modifyingMethods.includes(method)) {
+                    return request;
+                }
+
+                return fetch("/api/auth/csrf", {
+                    method: "GET",
+                    credentials: "same-origin",
+                    cache: "no-store"
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error(
+                            "Failed to get CSRF token: " + response.status);
+                    }
+
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (!data.token) {
+                        throw new Error(
+                            "The CSRF response does not contain a token.");
+                    }
+
+                    request.headers = request.headers || {};
+                    request.headers["X-CSRF-TOKEN"] = data.token;
+
+                    return request;
+                });
+            }
+            """);
     });
 }
 
@@ -212,7 +263,6 @@ if (app.Environment.IsDevelopment())
 // to authorization and endpoint-specific rate limiting.
 app.UseRouting();
 
-
 // If a separate React origin is introduced later,
 // configure a specific CORS policy and apply it here.
 
@@ -220,6 +270,8 @@ app.UseRouting();
 // Reads and validates the authentication cookie,
 // then populates HttpContext.User.
 app.UseAuthentication();
+
+app.UseExceptionHandler();
 
 
 // Enforces endpoint authorization policies using the current identity.
