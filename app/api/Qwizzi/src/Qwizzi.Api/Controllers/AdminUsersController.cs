@@ -15,7 +15,7 @@ public sealed class AdminUsersController(IAccountService accounts) : ControllerB
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] string sortBy = "username", [FromQuery] string sortOrder = "asc", CancellationToken ct = default)
     {
-        if (!new[] { "username", "status", "createdAt", "created_at" }.Contains(sortBy, StringComparer.OrdinalIgnoreCase)) return BadRequest(new { message = "sortBy must be username, status, or createdAt." });
+        if (!new[] { "username", "status", "role", "createdAt"}.Contains(sortBy, StringComparer.OrdinalIgnoreCase)) return BadRequest(new { message = "sortBy must be username, status, role or createdAt." });
         if (!new[] { "asc", "desc" }.Contains(sortOrder, StringComparer.OrdinalIgnoreCase)) return BadRequest(new { message = "sortOrder must be asc or desc." });
         return Ok(await accounts.GetUsersAsync(sortBy, sortOrder, ct));
     }
