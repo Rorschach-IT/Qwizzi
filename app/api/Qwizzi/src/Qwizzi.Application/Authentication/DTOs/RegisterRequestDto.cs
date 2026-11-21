@@ -4,21 +4,24 @@ namespace Qwizzi.Application.Authentication.DTOs;
 
 public sealed class RegisterRequestDto
 {
-    [Required]
-    [StringLength(50, MinimumLength = 3)]
+    [Required(ErrorMessage = "Username is required.")]
+    [MinLength(3, ErrorMessage = "Username must be at least 3 characters long.")]
+    [MaxLength(50, ErrorMessage = "Username must be at most 50 characters long.")]
     [RegularExpression(
         @"^[A-Za-z0-9_-]+$",
         ErrorMessage =
             "Username may contain only letters, digits, underscores and hyphens.")]
     public string Username { get; init; } = string.Empty;
 
-    [Required]
-    [EmailAddress]
-    [StringLength(255)]
+    [Required(ErrorMessage = "Email is required.")]
+    [EmailAddress(ErrorMessage = "Email must be a valid email address.")]
+    [StringLength(255, ErrorMessage = "Email must be at most 255 characters long.")]
     public string Email { get; init; } = string.Empty;
 
-    [Required]
-    [StringLength(128, MinimumLength = 16, ErrorMessage = "Password must be at least 16 characters long.")]
+    [Required(ErrorMessage = "Password is required.")]
+    [RegularExpression(
+        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,64}$",
+        ErrorMessage = "Password must be 8-64 characters and contain a lowercase letter, an uppercase letter, a digit and a special character.")]
     public string Password { get; init; } = string.Empty;
 }
 

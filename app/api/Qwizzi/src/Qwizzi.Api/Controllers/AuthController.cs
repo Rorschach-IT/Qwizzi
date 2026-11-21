@@ -49,11 +49,6 @@ public sealed class AuthController : ControllerBase
             request,
             cancellationToken);
 
-        if (!result.IsSuccess)
-        {
-            return HandleFailure(result.Error);
-        }
-
         return StatusCode(
             StatusCodes.Status201Created,
             result.User);
