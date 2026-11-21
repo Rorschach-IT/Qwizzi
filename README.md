@@ -8,9 +8,21 @@ Qwizzi runs on ASP.NET REST API Backend with database Postgresql server. All of 
 
 ```mermaid
 erDiagram
-    Client ||--o{ Interface : access
-    Interface o|--o{ API : connection
-    DbServer o|--o{ API : connection
+    Clients }o--o{ UIComponents : access
+    UIComponents }o--o{ APIControllers : connection
+    DataServers }o--o{ APIControllers : connection
+```
+
+**The production infrastructure** contains working application on multiple same nodes on kubernetez. The database server is split into multiple ubuntu server virtual machines. Example with 3 nodes and 3 vms per one layer:
+
+```mermaid
+erDiagram
+    Clients }o--|| AppNode1 : connects_to
+    Clients }o--|| AppNode2 : connects_to
+    Clients }o--|| AppNode3 : connects_to
+    Clients }o--|| PostgresCluster1 : persists_to
+    Clients }o--|| PostgresCluster2 : persists_to
+    Clients }o--|| PostgresCluster3 : persists_to
 ```
 
 # Main system requirements
