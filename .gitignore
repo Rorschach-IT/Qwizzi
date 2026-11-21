@@ -494,3 +494,4 @@ baseline.json
 .env.development
 .env.staging
 logs
+.private
