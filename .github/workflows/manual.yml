@@ -52,7 +52,7 @@ jobs:
           sleep 20
 
       - name: Build and run React application
-        working-directory: app/client/qwizzi
+        working-directory: app/client/Qwizzi
         run: |
           npm ci
           npm run build
