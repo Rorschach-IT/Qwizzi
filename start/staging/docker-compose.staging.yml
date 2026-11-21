@@ -1,32 +1,67 @@
-# This file contains the docker-compose configuration for the staging environment of the Qwizzi application.
 name: qwizzi-staging
 
 services:
   postgres-db:
     image: postgres:17-alpine
     restart: unless-stopped
+
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
       POSTGRES_DB: qwizzi
+
+    # Optional: access to PostgreSQL from the host computer.
     ports:
-      - '${POSTGRES_PORT}:5432'
+      - '127.0.0.1:${POSTGRES_PORT:?Set POSTGRES_PORT}:5432'
+
     volumes:
       - qwizzi_postgres_staging_data:/var/lib/postgresql/data
+
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d qwizzi']
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
       interval: 5s
       timeout: 5s
       retries: 10
 
+  api-server:
+    build:
+      context: ../../app/api/Qwizzi
+      dockerfile: Dockerfile
+
+    restart: unless-stopped
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+      ASPNETCORE_HTTP_PORTS: '8080'
+
+      ConnectionStrings__Database: >-
+        Host=postgres-db;Port=5432;Database=qwizzi;Username=${POSTGRES_USER:?Set POSTGRES_USER};Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+    # HTTP access for initial container diagnostics.
+    # HTTPS still needs to be configured for the authentication flow.
+    ports:
+      - '127.0.0.1:8080:8080'
+
   client-app:
     build:
-      context: ./app/client/qwizzi
+      context: ../../app/client/Qwizzi
       dockerfile: Dockerfile
+
+    restart: unless-stopped
+
     depends_on:
-      - postgres-db
+      - api-server
+
+    # Correct only if the frontend listens on port 5173
+    # and accepts connections on 0.0.0.0 inside its container.
     ports:
-      - '8081:5173'
+      - '127.0.0.1:8081:5173'
 
 volumes:
   qwizzi_postgres_staging_data:
