@@ -493,4 +493,7 @@ baseline.json
 .env
 .env.development
 .env.staging
+.env.testing
+.env.production
 logs
+.private
