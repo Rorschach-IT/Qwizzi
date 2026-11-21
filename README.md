@@ -13,7 +13,7 @@ erDiagram
     DataServers }o--o{ APIControllers : connection
 ```
 
-__The production infrastructure__ contains working application on multiple same nodes on kubernetez. The database server is split into multiple ubuntu server virtual machines. Example with 3 nodes and 3 vms per one layer:
+**The production infrastructure** contains working application on multiple same nodes on kubernetez. The database server is split into multiple ubuntu server virtual machines. Example with 3 nodes and 3 vms per one layer:
 
 ```mermaid
 erDiagram
@@ -48,10 +48,11 @@ This section describes how to setup developer or testing environment. Here you n
 
 ## How to run?
 
-> 1. In the repo root run `docker compose -f docker-compose.(developer/testing).yml --env-file .env.(developer/testing) up -d --build`.
-> 2. Go to `app/api/Qwizzi/src/Qwizzi.Api`.
-> 3. Update existing migrations to database, run: `dotnet ef database update`.
-> 4. Run dotnet application: `dotnet run` or for hot-reload: `dotnet watch run`.
-> 5. Navigate now to `app/client/Qwizzi`.
-> 6. Install dependencies: `npm ci`.
-> 7. Run React app: `npm run dev`.
+> 1. Navigate either to `start/development` or `start/testing`.
+> 2. In the repo root run `docker compose -f docker-compose.(developer/testing).yml --env-file .env.(developer/testing) up -d --build`.
+> 3. Go to `app/api/Qwizzi/src/Qwizzi.Api`.
+> 4. Update existing migrations to database, run: `dotnet ef database update`.
+> 5. Run dotnet application: `dotnet run` or for hot-reload: `dotnet watch run`.
+> 6. Navigate now to `app/client/Qwizzi`.
+> 7. Install dependencies: `npm ci`.
+> 8. Run React app: `npm run dev`.

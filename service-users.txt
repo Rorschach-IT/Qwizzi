@@ -1,7 +1,0 @@
-"Postgres main temporary connection:"
-user: postgres
-passwd: postgres
-
-"Postgres app connection: (not implemented yet)"
-user: qw_admin
-passwd: qw_123!%
