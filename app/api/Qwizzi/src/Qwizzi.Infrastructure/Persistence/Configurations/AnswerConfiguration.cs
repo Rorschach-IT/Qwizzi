@@ -8,7 +8,12 @@ public sealed class AnswerConfiguration : IEntityTypeConfiguration<Answer>
 {
     public void Configure(EntityTypeBuilder<Answer> builder)
     {
-        builder.ToTable("answers");
+        builder.ToTable("answers", table =>
+        {
+            table.HasCheckConstraint(
+                "ck_answers_exactly_one_text_or_image",
+                "(NULLIF(BTRIM(text), '') IS NOT NULL) <> (image_id IS NOT NULL)");
+        });
 
         builder.HasKey(answer => answer.AnswerId);
 
@@ -22,8 +27,8 @@ public sealed class AnswerConfiguration : IEntityTypeConfiguration<Answer>
         builder.Property(answer => answer.Text)
             .HasColumnName("text")
             .HasMaxLength(1000)
-            .IsRequired();
-        
+            .IsRequired(false);
+
         builder.Property(answer => answer.ImageId)
             .HasColumnName("image_id");
 
