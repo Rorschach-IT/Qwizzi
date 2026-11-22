@@ -2,12 +2,9 @@
 
 public static class SeedSettings
 {
-    // Edit this value, if you want, to change the environment imgs dataset (ex. development to testing
-    private const string EnvironmentSelection = "development";
-    
     // Paths are relative to the backend root containing Qwizzi.slnx.
     public const string SourceImagesRelativePath =
-        "seed/images/" + EnvironmentSelection;
+        "seed/images/" + EnvironmentPicker.EnvironmentSelection;
 
     // Proposed destination for local development.
     // It must match the storage location used by the API.
