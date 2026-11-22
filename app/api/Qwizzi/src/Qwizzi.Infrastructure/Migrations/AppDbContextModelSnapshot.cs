@@ -44,7 +44,6 @@ namespace Qwizzi.Infrastructure.Migrations
                         .HasColumnName("question_id");
 
                     b.Property<string>("Text")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("text");
@@ -55,7 +54,10 @@ namespace Qwizzi.Infrastructure.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("answers", (string)null);
+                    b.ToTable("answers", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_answers_exactly_one_text_or_image", "(NULLIF(BTRIM(text), '') IS NOT NULL) <> (image_id IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("Qwizzi.Domain.Entities.ImageAsset", b =>
