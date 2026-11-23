@@ -498,11 +498,9 @@ baseline.json
 logs
 .private
 
-image-01.webp
-image-02.webp
-image-03.webp
-image-04.webp
-image-05.webp
-image-06.webp
-image-07.webp
-EnvironmentPicker.cs
+.venv/
+Schemathesis-report/
+.hypothesis/
+.schemathesis/
+__pycache__/
+.pytest_cache/
