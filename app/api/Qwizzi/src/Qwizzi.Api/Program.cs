@@ -63,7 +63,7 @@ builder.Services
         options.Cookie.Path = "/";
 
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-        options.SlidingExpiration = false;
+        options.SlidingExpiration = true;
 
         options.EventsType = typeof(ActiveUserCookieEvents);
     });

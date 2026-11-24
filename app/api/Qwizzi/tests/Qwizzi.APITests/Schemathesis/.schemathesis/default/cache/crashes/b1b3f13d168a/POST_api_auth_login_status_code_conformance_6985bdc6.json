@@ -1,0 +1,87 @@
+{
+  "operation": "POST /api/auth/login",
+  "method": "POST",
+  "path_template": "/api/auth/login",
+  "fingerprint": "6985bdc6",
+  "case_id": "bD3jgN",
+  "code_sample": "curl -X POST -H 'Content-Type: application/json' -d '{\"email\": \"\", \"password\": \"[Filtered]\"}' --insecure https://localhost:7275/api/auth/login",
+  "sequence": [
+    {
+      "method": "POST",
+      "url": "https://localhost:7275/api/auth/login",
+      "url_template": "https://localhost:7275/api/auth/login",
+      "headers": {
+        "User-Agent": "schemathesis/4.34.0",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "bD3jgN",
+        "Content-Type": "application/json",
+        "Content-Length": "29"
+      },
+      "response": {
+        "status_code": 400,
+        "headers": {
+          "content-type": "application/problem+json; charset=utf-8",
+          "date": "Sun, 22 Nov 2026 23:57:59 GMT",
+          "server": "Kestrel",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"Bad Request\",\"status\":400,\"traceId\":\"00-afa6afc8bd4f64629c1d6edcdf788dcb-d63a07ce6273e0a4-00\"}"
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "status_code_conformance",
+          "status": "failure",
+          "message": "Undocumented status code\n\nReceived: 400\nDocumented: 200"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 0.022067799996875692,
+          "mode": "positive"
+        },
+        "components": {
+          "BODY": "positive"
+        },
+        "phase": {
+          "name": "coverage",
+          "data": {
+            "type": "CoveragePhaseData",
+            "description": "Valid object",
+            "location": null,
+            "parameter": "application/json",
+            "parameter_location": "BODY",
+            "scenario": "valid_object"
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {}
+      },
+      "path": "/api/auth/login",
+      "path_parameters": {},
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "json",
+        "value": {
+          "email": "",
+          "password": "[Filtered]"
+        }
+      },
+      "media_type": "application/json",
+      "parent_index": null,
+      "auth_identity": null,
+      "operation": "POST /api/auth/login"
+    }
+  ],
+  "aliases": [
+    "uE1d5g"
+  ]
+}
