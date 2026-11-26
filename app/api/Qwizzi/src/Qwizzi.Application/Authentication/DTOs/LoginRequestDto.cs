@@ -12,4 +12,10 @@ public class LoginRequestDto
     [Required(ErrorMessage = "Password is required.")]
     [StringLength(128)]
     public string Password { get; init; } = string.Empty;
+
+    [MaxLength(200)]
+    public string Website { get; init; } = string.Empty;
+
+    [MaxLength(2048)]
+    public string TurnstileToken { get; init; } = string.Empty;
 }

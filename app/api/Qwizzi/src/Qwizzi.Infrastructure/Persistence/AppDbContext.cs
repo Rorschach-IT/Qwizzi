@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Qwizzi.Domain.Entities;
 using Qwizzi.Application.Abstractions.Persistence;
 using Npgsql;
-using Qwizzi.Application.Abstractions.Persistence;
 
 namespace Qwizzi.Infrastructure.Persistence;
 
@@ -21,6 +20,8 @@ public sealed class AppDbContext : DbContext, IUnitOfWork
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
     public DbSet<UserAnswer> UserAnswers => Set<UserAnswer>();
     public DbSet<ImageAsset> ImageAssets => Set<ImageAsset>();
+    public DbSet<SecurityEvent> SecurityEvents => Set<SecurityEvent>();
+    public DbSet<SecurityAuditState> SecurityAuditStates => Set<SecurityAuditState>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +33,12 @@ public sealed class AppDbContext : DbContext, IUnitOfWork
     public override async Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
+        if (ChangeTracker.Entries<SecurityEvent>()
+            .Any(entry => entry.State is EntityState.Modified or EntityState.Deleted))
+        {
+            throw new InvalidOperationException("Security events are append-only.");
+        }
+
         try
         {
             return await base.SaveChangesAsync(cancellationToken);

@@ -1,0 +1,79 @@
+{
+  "operation": "POST /api/auth/logout",
+  "method": "POST",
+  "path_template": "/api/auth/logout",
+  "fingerprint": "2f644433",
+  "case_id": "f2n0mB",
+  "code_sample": "curl -X POST --insecure https://localhost:7275/api/auth/logout",
+  "sequence": [
+    {
+      "method": "POST",
+      "url": "https://localhost:7275/api/auth/logout",
+      "url_template": "https://localhost:7275/api/auth/logout",
+      "headers": {
+        "User-Agent": "schemathesis/4.34.0",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "f2n0mB",
+        "Content-Length": "0"
+      },
+      "response": {
+        "status_code": 401,
+        "headers": {
+          "content-length": "0",
+          "date": "Sun, 22 Nov 2026 23:57:59 GMT",
+          "server": "Kestrel"
+        },
+        "body": ""
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "status_code_conformance",
+          "status": "failure",
+          "message": "Undocumented status code\n\nReceived: 401\nDocumented: 200"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 3.1000017770566046e-06,
+          "mode": "positive"
+        },
+        "components": {},
+        "phase": {
+          "name": "coverage",
+          "data": {
+            "type": "CoveragePhaseData",
+            "description": "Default positive test case",
+            "location": null,
+            "parameter": null,
+            "parameter_location": null,
+            "scenario": "default_positive_test"
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {}
+      },
+      "path": "/api/auth/logout",
+      "path_parameters": {},
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "none"
+      },
+      "media_type": null,
+      "parent_index": null,
+      "auth_identity": null,
+      "operation": "POST /api/auth/logout"
+    }
+  ],
+  "aliases": [
+    "7gAlQW"
+  ]
+}

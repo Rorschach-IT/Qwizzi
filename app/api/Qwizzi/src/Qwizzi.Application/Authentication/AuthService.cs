@@ -26,11 +26,17 @@ public sealed class AuthService : IAuthService
         RegisterRequestDto request,
         CancellationToken cancellationToken = default)
     {
+        if (!string.IsNullOrWhiteSpace(request.Website))
+        {
+            return AuthResult.Failure(AuthError.HoneypotTriggered);
+        }
+
         var cleanedRequest = new RegisterRequestDto
         {
             Username = request.Username?.Trim() ?? string.Empty,
             Email = request.Email?.Trim() ?? string.Empty,
-            Password = request.Password ?? string.Empty
+            Password = request.Password ?? string.Empty,
+            Website = request.Website ?? string.Empty
         };
 
         if (!IsValid(cleanedRequest))
@@ -86,6 +92,48 @@ public sealed class AuthService : IAuthService
         return AuthResult.Success(ToDto(user));
     }
 
+    public async Task<AuthResult> CreateByAdminAsync(
+        AdminCreateUserRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        var username = request.Username.Trim();
+        var email = request.Email.Trim();
+        if (username.Length is < 3 or > 50
+            || email.Length > 255
+            || !new EmailAddressAttribute().IsValid(email))
+        {
+            return AuthResult.Failure(AuthError.InvalidRequest);
+        }
+
+        if (await _userRepository.ExistsByEmailAsync(email, cancellationToken)
+            || await _userRepository.ExistsByUsernameAsync(username, cancellationToken))
+        {
+            return AuthResult.Failure(AuthError.RegistrationConflict);
+        }
+
+        var user = new User
+        {
+            Username = username,
+            Email = email,
+            Role = UserRole.User,
+            Status = true,
+            MustChangePassword = true,
+            TemporaryPasswordExpiresAt = DateTime.UtcNow.AddDays(30)
+        };
+        user.PasswordHash = _passwordService.Hash(user, request.TemporaryPassword);
+        _userRepository.Add(user);
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (UniqueConstraintException)
+        {
+            return AuthResult.Failure(AuthError.RegistrationConflict);
+        }
+
+        return AuthResult.Success(ToDto(user));
+    }
+
     public async Task<AuthResult> LoginAsync(
         LoginRequestDto request,
         CancellationToken cancellationToken = default)
@@ -93,8 +141,14 @@ public sealed class AuthService : IAuthService
         var cleanedRequest = new LoginRequestDto
         {
             Email = request.Email?.Trim() ?? string.Empty,
-            Password = request.Password ?? string.Empty
+            Password = request.Password ?? string.Empty,
+            Website = request.Website ?? string.Empty
         };
+
+        if (!string.IsNullOrWhiteSpace(cleanedRequest.Website))
+        {
+            return AuthResult.Failure(AuthError.HoneypotTriggered);
+        }
 
         if (!IsValid(cleanedRequest))
         {
@@ -111,15 +165,39 @@ public sealed class AuthService : IAuthService
                 AuthError.InvalidCredentials);
         }
 
+        var now = DateTime.UtcNow;
+        if (user.LockoutUntil > now)
+        {
+            return AuthResult.Failure(AuthError.AccountLocked, user.UserId, user.Username);
+        }
+
         var passwordResult = _passwordService.Verify(
             user,
             cleanedRequest.Password);
 
-        if (passwordResult == PasswordCheckResult.Failed
-            || !CanAuthenticate(user))
+        if (!CanAuthenticate(user))
         {
             return AuthResult.Failure(
-                AuthError.InvalidCredentials);
+                AuthError.InvalidCredentials,
+                user.UserId,
+                user.Username);
+        }
+
+        if (passwordResult == PasswordCheckResult.Failed)
+        {
+            var attempt = await _userRepository.RecordFailedLoginAsync(user.UserId, now, cancellationToken);
+            return AuthResult.Failure(attempt.LockoutUntil.HasValue ? AuthError.AccountLocked : AuthError.InvalidCredentials, user.UserId, user.Username);
+        }
+
+        if (!await _userRepository.CompleteSuccessfulLoginAsync(user.UserId, now, cancellationToken))
+        {
+            return AuthResult.Failure(AuthError.AccountLocked, user.UserId, user.Username);
+        }
+
+        if (user.TemporaryPasswordExpiresAt <= now)
+        {
+            user.MustChangePassword = true;
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         if (passwordResult ==
@@ -151,6 +229,16 @@ public sealed class AuthService : IAuthService
         return ToDto(user);
     }
 
+    public async Task<bool> IsLoginChallengeRequiredAsync(
+        string email,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.GetByEmailAsync(
+            email.Trim(),
+            cancellationToken);
+        return user is { FailedLoginAttempts: > 0 };
+    }
+
     private static bool CanAuthenticate(User user)
     {
         return user.Status
@@ -163,7 +251,8 @@ public sealed class AuthService : IAuthService
             user.UserId,
             user.Username,
             user.Email,
-            user.Role.ToString());
+            user.Role.ToString(),
+            user.MustChangePassword);
     }
 
     private static bool IsValid(object request)

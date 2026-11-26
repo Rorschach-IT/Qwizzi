@@ -32,6 +32,17 @@ public sealed class ActiveUserCookieEvents(IAuthService authService)
         if (user is null || cookieRole != user.Role)
         {
             await RejectAsync(context);
+            return;
+        }
+
+        var identity = context.Principal?.Identity as ClaimsIdentity;
+        var passwordClaim = context.Principal?.FindFirst("must_change_password");
+        var updatedValue = user.MustChangePassword.ToString();
+        if (passwordClaim?.Value != updatedValue && identity is not null)
+        {
+            if (passwordClaim is not null) identity.RemoveClaim(passwordClaim);
+            identity.AddClaim(new Claim("must_change_password", updatedValue));
+            context.ShouldRenew = true;
         }
     }
 

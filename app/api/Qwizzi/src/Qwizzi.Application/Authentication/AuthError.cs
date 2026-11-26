@@ -5,7 +5,9 @@ public enum AuthError
     None = 0,
     InvalidRequest = 1,
     InvalidCredentials = 2,
-    RegistrationConflict = 3
+    RegistrationConflict = 3,
+    AccountLocked = 4,
+    HoneypotTriggered = 5
 }
 
 public sealed class DomainException : Exception

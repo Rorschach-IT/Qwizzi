@@ -4,5 +4,6 @@ public sealed record AuthenticatedUserDto(
     Guid UserId,
     string Username,
     string Email,
-    string Role
+    string Role,
+    bool MustChangePassword = false
     );

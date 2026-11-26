@@ -1,0 +1,79 @@
+{
+  "operation": "DELETE /api/account",
+  "method": "DELETE",
+  "path_template": "/api/account",
+  "fingerprint": "e3387837",
+  "case_id": "qvIC2n",
+  "code_sample": "curl -X DELETE --insecure https://localhost:7275/api/account",
+  "sequence": [
+    {
+      "method": "DELETE",
+      "url": "https://localhost:7275/api/account",
+      "url_template": "https://localhost:7275/api/account",
+      "headers": {
+        "User-Agent": "schemathesis/4.34.0",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "qvIC2n",
+        "Content-Length": "0"
+      },
+      "response": {
+        "status_code": 401,
+        "headers": {
+          "content-length": "0",
+          "date": "Sun, 22 Nov 2026 23:51:51 GMT",
+          "server": "Kestrel"
+        },
+        "body": ""
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "status_code_conformance",
+          "status": "failure",
+          "message": "Undocumented status code\n\nReceived: 401\nDocumented: 200"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 2.6999987312592566e-06,
+          "mode": "positive"
+        },
+        "components": {},
+        "phase": {
+          "name": "coverage",
+          "data": {
+            "type": "CoveragePhaseData",
+            "description": "Default positive test case",
+            "location": null,
+            "parameter": null,
+            "parameter_location": null,
+            "scenario": "default_positive_test"
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {}
+      },
+      "path": "/api/account",
+      "path_parameters": {},
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "none"
+      },
+      "media_type": null,
+      "parent_index": null,
+      "auth_identity": null,
+      "operation": "DELETE /api/account"
+    }
+  ],
+  "aliases": [
+    "Ym6xKH"
+  ]
+}

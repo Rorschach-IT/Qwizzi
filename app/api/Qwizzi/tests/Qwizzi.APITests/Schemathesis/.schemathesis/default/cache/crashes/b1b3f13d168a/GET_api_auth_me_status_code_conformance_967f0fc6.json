@@ -1,0 +1,78 @@
+{
+  "operation": "GET /api/auth/me",
+  "method": "GET",
+  "path_template": "/api/auth/me",
+  "fingerprint": "967f0fc6",
+  "case_id": "Hk0d3u",
+  "code_sample": "curl -X GET --insecure https://localhost:7275/api/auth/me",
+  "sequence": [
+    {
+      "method": "GET",
+      "url": "https://localhost:7275/api/auth/me",
+      "url_template": "https://localhost:7275/api/auth/me",
+      "headers": {
+        "User-Agent": "schemathesis/4.34.0",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "Hk0d3u"
+      },
+      "response": {
+        "status_code": 401,
+        "headers": {
+          "content-length": "0",
+          "date": "Sun, 22 Nov 2026 23:57:59 GMT",
+          "server": "Kestrel"
+        },
+        "body": ""
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "status_code_conformance",
+          "status": "failure",
+          "message": "Undocumented status code\n\nReceived: 401\nDocumented: 200"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 2.5999979698099196e-06,
+          "mode": "positive"
+        },
+        "components": {},
+        "phase": {
+          "name": "coverage",
+          "data": {
+            "type": "CoveragePhaseData",
+            "description": "Default positive test case",
+            "location": null,
+            "parameter": null,
+            "parameter_location": null,
+            "scenario": "default_positive_test"
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {}
+      },
+      "path": "/api/auth/me",
+      "path_parameters": {},
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "none"
+      },
+      "media_type": null,
+      "parent_index": null,
+      "auth_identity": null,
+      "operation": "GET /api/auth/me"
+    }
+  ],
+  "aliases": [
+    "XidjZ4"
+  ]
+}

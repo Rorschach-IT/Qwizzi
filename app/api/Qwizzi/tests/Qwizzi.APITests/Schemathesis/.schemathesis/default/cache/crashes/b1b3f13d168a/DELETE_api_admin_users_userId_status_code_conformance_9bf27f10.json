@@ -1,0 +1,90 @@
+{
+  "operation": "DELETE /api/admin/users/{userId}",
+  "method": "DELETE",
+  "path_template": "/api/admin/users/{userId}",
+  "fingerprint": "9bf27f10",
+  "case_id": "eeNDu7",
+  "code_sample": "curl -X DELETE --insecure https://localhost:7275/api/admin/users/e3e70682-c209-1cac-a29f-6fbed82c07cd",
+  "sequence": [
+    {
+      "method": "DELETE",
+      "url": "https://localhost:7275/api/admin/users/e3e70682-c209-1cac-a29f-6fbed82c07cd",
+      "url_template": "https://localhost:7275/api/admin/users/{userId}",
+      "headers": {
+        "User-Agent": "schemathesis/4.34.0",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "eeNDu7",
+        "Content-Length": "0"
+      },
+      "response": {
+        "status_code": 401,
+        "headers": {
+          "content-length": "0",
+          "date": "Sun, 22 Nov 2026 23:22:41 GMT",
+          "server": "Kestrel"
+        },
+        "body": ""
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "status_code_conformance",
+          "status": "failure",
+          "message": "Undocumented status code\n\nReceived: 401\nDocumented: 200"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 0.0001345000055152923,
+          "mode": "positive"
+        },
+        "components": {
+          "PATH": "positive"
+        },
+        "phase": {
+          "name": "coverage",
+          "data": {
+            "type": "CoveragePhaseData",
+            "description": "Default positive test case",
+            "location": null,
+            "parameter": null,
+            "parameter_location": null,
+            "scenario": "default_positive_test"
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [
+          [
+            "path",
+            "userId"
+          ]
+        ],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {
+          "PATH": {
+            "userId": "e3e70682-c209-1cac-a29f-6fbed82c07cd"
+          }
+        }
+      },
+      "path": "/api/admin/users/{userId}",
+      "path_parameters": {
+        "userId": "e3e70682-c209-1cac-a29f-6fbed82c07cd"
+      },
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "none"
+      },
+      "media_type": null,
+      "parent_index": null,
+      "auth_identity": null,
+      "operation": "DELETE /api/admin/users/{userId}"
+    }
+  ],
+  "aliases": []
+}

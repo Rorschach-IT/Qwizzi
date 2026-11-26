@@ -8,8 +8,16 @@ public interface IAuthService
         RegisterRequestDto request,
         CancellationToken cancellationToken = default);
 
+    Task<AuthResult> CreateByAdminAsync(
+        AdminCreateUserRequestDto request,
+        CancellationToken cancellationToken = default);
+
     Task<AuthResult> LoginAsync(
         LoginRequestDto request,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> IsLoginChallengeRequiredAsync(
+        string email,
         CancellationToken cancellationToken = default);
 
     Task<AuthenticatedUserDto?> GetCurrentUserAsync(

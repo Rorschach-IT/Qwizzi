@@ -1,0 +1,85 @@
+{
+  "operation": "PATCH /api/account/username",
+  "method": "PATCH",
+  "path_template": "/api/account/username",
+  "fingerprint": "ff61da4d",
+  "case_id": "nJXtcN",
+  "code_sample": "curl -X PATCH -H 'Content-Type: application/json' -d '{\"username\": \"000\"}' --insecure https://localhost:7275/api/account/username",
+  "sequence": [
+    {
+      "method": "PATCH",
+      "url": "https://localhost:7275/api/account/username",
+      "url_template": "https://localhost:7275/api/account/username",
+      "headers": {
+        "User-Agent": "schemathesis/4.34.0",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "nJXtcN",
+        "Content-Type": "application/json",
+        "Content-Length": "19"
+      },
+      "response": {
+        "status_code": 401,
+        "headers": {
+          "content-length": "0",
+          "date": "Sun, 22 Nov 2026 23:51:51 GMT",
+          "server": "Kestrel"
+        },
+        "body": ""
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "status_code_conformance",
+          "status": "failure",
+          "message": "Undocumented status code\n\nReceived: 401\nDocumented: 200"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 0.0025755000024219044,
+          "mode": "positive"
+        },
+        "components": {
+          "BODY": "positive"
+        },
+        "phase": {
+          "name": "coverage",
+          "data": {
+            "type": "CoveragePhaseData",
+            "description": "Valid object",
+            "location": null,
+            "parameter": "application/json",
+            "parameter_location": "BODY",
+            "scenario": "valid_object"
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {}
+      },
+      "path": "/api/account/username",
+      "path_parameters": {},
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "json",
+        "value": {
+          "username": "000"
+        }
+      },
+      "media_type": "application/json",
+      "parent_index": null,
+      "auth_identity": null,
+      "operation": "PATCH /api/account/username"
+    }
+  ],
+  "aliases": [
+    "CsNQff"
+  ]
+}

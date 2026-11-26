@@ -1,0 +1,88 @@
+{
+  "operation": "POST /api/auth/register",
+  "method": "POST",
+  "path_template": "/api/auth/register",
+  "fingerprint": "c321fd72",
+  "case_id": "BXMkZf",
+  "code_sample": "curl -X POST -H 'Content-Type: application/json' -d '{\"username\": \"000\", \"email\": \"\", \"password\": \"[Filtered]\"}' --insecure https://localhost:7275/api/auth/register",
+  "sequence": [
+    {
+      "method": "POST",
+      "url": "https://localhost:7275/api/auth/register",
+      "url_template": "https://localhost:7275/api/auth/register",
+      "headers": {
+        "User-Agent": "schemathesis/4.34.0",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "BXMkZf",
+        "Content-Type": "application/json",
+        "Content-Length": "60"
+      },
+      "response": {
+        "status_code": 400,
+        "headers": {
+          "content-type": "application/problem+json; charset=utf-8",
+          "date": "Sun, 22 Nov 2026 23:57:59 GMT",
+          "server": "Kestrel",
+          "transfer-encoding": "chunked"
+        },
+        "body": "{\"type\":\"https://tools.ietf.org/html/rfc9110#section-15.5.1\",\"title\":\"Bad Request\",\"status\":400,\"traceId\":\"00-5a1b5587fd2b0348c1398d067707f467-3dfa82aa18417c54-00\"}"
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "positive_data_acceptance",
+          "status": "failure",
+          "message": "Schema-valid request rejected\n\nValid data should have been accepted\nExpected: 2xx, 3xx, 401, 403, 404, 409, 429, 5xx"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 0.02008199999545468,
+          "mode": "positive"
+        },
+        "components": {
+          "BODY": "positive"
+        },
+        "phase": {
+          "name": "coverage",
+          "data": {
+            "type": "CoveragePhaseData",
+            "description": "Valid object",
+            "location": null,
+            "parameter": "application/json",
+            "parameter_location": "BODY",
+            "scenario": "valid_object"
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {}
+      },
+      "path": "/api/auth/register",
+      "path_parameters": {},
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "json",
+        "value": {
+          "username": "000",
+          "email": "",
+          "password": "[Filtered]"
+        }
+      },
+      "media_type": "application/json",
+      "parent_index": null,
+      "auth_identity": null,
+      "operation": "POST /api/auth/register"
+    }
+  ],
+  "aliases": [
+    "VmqPFK"
+  ]
+}

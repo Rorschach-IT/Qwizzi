@@ -1,0 +1,93 @@
+{
+  "operation": "PATCH /api/admin/users/{userId}/status",
+  "method": "PATCH",
+  "path_template": "/api/admin/users/{userId}/status",
+  "fingerprint": "d4ebf0b0",
+  "case_id": "CjHeZd",
+  "code_sample": "curl -X PATCH -H 'Content-Type: application/json' -d true --insecure https://localhost:7275/api/admin/users/e3e70682-c209-1cac-a29f-6fbed82c07cd/status",
+  "sequence": [
+    {
+      "method": "PATCH",
+      "url": "https://localhost:7275/api/admin/users/e3e70682-c209-1cac-a29f-6fbed82c07cd/status",
+      "url_template": "https://localhost:7275/api/admin/users/{userId}/status",
+      "headers": {
+        "User-Agent": "schemathesis/4.34.0",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "CjHeZd",
+        "Content-Type": "application/json",
+        "Content-Length": "4"
+      },
+      "response": {
+        "status_code": 401,
+        "headers": {
+          "content-length": "0",
+          "date": "Sun, 22 Nov 2026 23:22:41 GMT",
+          "server": "Kestrel"
+        },
+        "body": ""
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "status_code_conformance",
+          "status": "failure",
+          "message": "Undocumented status code\n\nReceived: 401\nDocumented: 200"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 7.709999772487208e-05,
+          "mode": "positive"
+        },
+        "components": {
+          "PATH": "positive",
+          "BODY": "positive"
+        },
+        "phase": {
+          "name": "coverage",
+          "data": {
+            "type": "CoveragePhaseData",
+            "description": "Valid boolean value",
+            "location": null,
+            "parameter": "application/json",
+            "parameter_location": "BODY",
+            "scenario": "valid_boolean"
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [
+          [
+            "path",
+            "userId"
+          ]
+        ],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {
+          "PATH": {
+            "userId": "e3e70682-c209-1cac-a29f-6fbed82c07cd"
+          }
+        }
+      },
+      "path": "/api/admin/users/{userId}/status",
+      "path_parameters": {
+        "userId": "e3e70682-c209-1cac-a29f-6fbed82c07cd"
+      },
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "json",
+        "value": true
+      },
+      "media_type": "application/json",
+      "parent_index": null,
+      "auth_identity": null,
+      "operation": "PATCH /api/admin/users/{userId}/status"
+    }
+  ],
+  "aliases": []
+}

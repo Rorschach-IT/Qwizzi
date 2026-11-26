@@ -15,18 +15,17 @@ public sealed class AccountService(IUserRepository users, IPasswordService passw
     {
         var user = await users.GetByIdAsync(userId, cancellationToken);
         if (user is null || passwords.Verify(user, currentPassword) == PasswordCheckResult.Failed) return false;
-        user.PasswordHash = passwords.Hash(user, newPassword);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        return true;
+        var expectedHash = user.PasswordHash;
+        var newHash = passwords.Hash(user, newPassword);
+        return await users.UpdatePasswordAsync(userId, expectedHash, newHash, false, null, cancellationToken);
     }
 
     public async Task<bool> SetPasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default)
     {
         var user = await users.GetByIdAsync(userId, cancellationToken);
         if (user is null || user.Role == UserRole.Administrator) return false;
-        user.PasswordHash = passwords.Hash(user, password);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-        return true;
+        var newHash = passwords.Hash(user, password);
+        return await users.UpdatePasswordAsync(userId, null, newHash, true, DateTime.UtcNow.AddDays(30), cancellationToken);
     }
 
     public async Task<bool> DeleteOwnAsync(Guid userId, CancellationToken cancellationToken = default)
@@ -95,5 +94,5 @@ public sealed class AccountService(IUserRepository users, IPasswordService passw
         return ToDto(user);
     }
 
-    private static AuthenticatedUserDto ToDto(Qwizzi.Domain.Entities.User user) => new(user.UserId, user.Username, user.Email, user.Role.ToString());
+    private static AuthenticatedUserDto ToDto(Qwizzi.Domain.Entities.User user) => new(user.UserId, user.Username, user.Email, user.Role.ToString(), user.MustChangePassword);
 }
