@@ -23,6 +23,12 @@ public sealed class RegisterRequestDto
         @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,64}$",
         ErrorMessage = "Password must be 8-64 characters and contain a lowercase letter, an uppercase letter, a digit and a special character.")]
     public string Password { get; init; } = string.Empty;
+
+    [MaxLength(200)]
+    public string Website { get; init; } = string.Empty;
+
+    [MaxLength(2048)]
+    public string TurnstileToken { get; init; } = string.Empty;
 }
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]

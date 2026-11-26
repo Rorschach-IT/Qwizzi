@@ -24,6 +24,10 @@ public interface IUserRepository
     Task<bool> ExistsByUsernameForOtherUserAsync(string username, Guid userId, CancellationToken cancellationToken = default);
     Task<int> CountActiveAdministratorsAsync(CancellationToken cancellationToken = default);
     Task<List<User>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<LoginAttemptState> RecordFailedLoginAsync(Guid userId, DateTime now, CancellationToken cancellationToken = default);
+    Task<bool> CompleteSuccessfulLoginAsync(Guid userId, DateTime now, CancellationToken cancellationToken = default);
+    Task<bool> UpdatePasswordAsync(Guid userId, string? expectedPasswordHash, string newPasswordHash, bool mustChangePassword, DateTime? temporaryPasswordExpiresAt, CancellationToken cancellationToken = default);
+    Task<int> RequirePasswordChangeForAllAsync(CancellationToken cancellationToken = default);
     void Remove(User user);
 
     void Add(User user);

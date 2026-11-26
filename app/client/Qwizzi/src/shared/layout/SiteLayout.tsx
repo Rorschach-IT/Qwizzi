@@ -6,7 +6,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/context/useAuth';
 
 const primaryLinks = [
@@ -102,6 +102,7 @@ function AccountMenu({ onClose }: { onClose: () => void }) {
               <span className="menu-divider" />
               <NavLink to="/admin/users" role="menuitem" onClick={onClose}>Manage users</NavLink>
               <NavLink to="/admin/quizzes" role="menuitem" onClick={onClose}>Quizzes</NavLink>
+              <NavLink to="/admin/security" role="menuitem" onClick={onClose}>Security &amp; audit</NavLink>
               <NavLink to="/admin/statistics" role="menuitem" onClick={onClose}>Admin statistics</NavLink>
             </>
           )}
@@ -293,6 +294,7 @@ export function SiteLayout() {
                     <>
                       <NavLink className="nav-link" to="/admin/users" onClick={closeMobileMenu}>Manage users</NavLink>
                       <NavLink className="nav-link" to="/admin/quizzes" onClick={closeMobileMenu}>Quizzes</NavLink>
+                      <NavLink className="nav-link" to="/admin/security" onClick={closeMobileMenu}>Security &amp; audit</NavLink>
                       <NavLink className="nav-link" to="/admin/statistics" onClick={closeMobileMenu}>Admin statistics</NavLink>
                     </>
                   )}
@@ -311,7 +313,9 @@ export function SiteLayout() {
       )}
 
       <main id="main-content" className="site-main">
-        <Outlet />
+        {user?.mustChangePassword && location.pathname !== '/account/change-password'
+          ? <Navigate to="/account/change-password" replace />
+          : <Outlet />}
       </main>
 
       <footer className="site-footer">

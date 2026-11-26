@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowDownUp, Check, LoaderCircle, Pencil, RefreshCw, Trash2, UserRound, X } from 'lucide-react';
+import { ArrowDownUp, Check, LoaderCircle, Pencil, RefreshCw, Trash2, UserRound, UserPlus, X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -43,6 +43,7 @@ export function AdminUsersPage() {
   const [requestVersion, setRequestVersion] = useState(0);
   const [completedRequest, setCompletedRequest] = useState('');
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [creatingUser, setCreatingUser] = useState(false);
   const [saving, setSaving] = useState(false);
   const requestKey = `${sortBy}-${sortOrder}-${requestVersion}`;
   const loading = completedRequest !== requestKey;
@@ -83,17 +84,40 @@ export function AdminUsersPage() {
   }
 
   function startEditing(user: AdminUser) {
+    setCreatingUser(false);
     setEditingUser(user);
     setActionError('');
     editForm.reset({ username: user.username, email: user.email, password: '' });
   }
 
+  function startCreating() {
+    setCreatingUser(true);
+    setEditingUser(null);
+    setActionError('');
+    editForm.reset({ username: '', email: '', password: '' });
+  }
+
   async function saveUser(values: EditUserValues) {
-    if (!editingUser) return;
+    if (!editingUser && !creatingUser) return;
     setSaving(true);
     setActionError('');
     let updated = false;
     try {
+      if (creatingUser) {
+        if (!values.password) {
+          setActionError('Set a temporary password for the new account.');
+          return;
+        }
+        await adminUsersService.create({
+          username: values.username,
+          email: values.email,
+          temporaryPassword: values.password,
+        });
+        setCreatingUser(false);
+        reloadUsers();
+        return;
+      }
+      if (!editingUser) return;
       if (values.username !== editingUser.username) {
         await adminUsersService.updateUsername(editingUser.userId, values.username);
         updated = true;
@@ -154,7 +178,10 @@ export function AdminUsersPage() {
           <h1>Manage users</h1>
           <p>Review accounts, update details, and manage access.</p>
         </div>
-        <div className="user-count"><UserRound size={17} aria-hidden="true" /> {users.length} users</div>
+        <div className="admin-heading-actions">
+          <div className="user-count"><UserRound size={17} aria-hidden="true" /> {users.length} users</div>
+          <button type="button" className="button button-primary" onClick={startCreating}><UserPlus size={17} aria-hidden="true" /> Add user</button>
+        </div>
       </div>
 
       <section className="table-card" aria-labelledby="users-table-heading">
@@ -247,8 +274,8 @@ export function AdminUsersPage() {
         )}
       </section>
 
-      {editingUser && (
-        <div className="modal-backdrop" onMouseDown={() => setEditingUser(null)}>
+      {(editingUser || creatingUser) && (
+        <div className="modal-backdrop" onMouseDown={() => { setEditingUser(null); setCreatingUser(false); }}>
           <section
             className="edit-user-modal"
             role="dialog"
@@ -257,17 +284,17 @@ export function AdminUsersPage() {
             onMouseDown={(event) => event.stopPropagation()}
           >
             <div className="modal-heading">
-              <div><span className="eyebrow">USER ACCOUNT</span><h2 id="edit-user-title">Edit {editingUser.username}</h2></div>
-              <button type="button" className="icon-button" aria-label="Close edit user dialog" onClick={() => setEditingUser(null)}><X size={20} /></button>
+              <div><span className="eyebrow">USER ACCOUNT</span><h2 id="edit-user-title">{creatingUser ? 'Create a user' : `Edit ${editingUser?.username}`}</h2></div>
+              <button type="button" className="icon-button" aria-label="Close user dialog" onClick={() => { setEditingUser(null); setCreatingUser(false); }}><X size={20} /></button>
             </div>
             {actionError && <div className="notice error-notice" role="alert">{actionError}</div>}
             <form className="settings-form" noValidate onSubmit={editForm.handleSubmit(saveUser)}>
               <div className="form-field"><label htmlFor="edit-username">Username</label><input id="edit-username" aria-invalid={Boolean(editForm.formState.errors.username)} aria-describedby={editForm.formState.errors.username ? 'edit-username-error' : undefined} {...editForm.register('username')} />{editForm.formState.errors.username && <p className="field-error" id="edit-username-error">Use 3–50 letters, numbers, underscores, or hyphens.</p>}</div>
               <div className="form-field"><label htmlFor="edit-email">Email address</label><input id="edit-email" type="email" aria-invalid={Boolean(editForm.formState.errors.email)} aria-describedby={editForm.formState.errors.email ? 'edit-email-error' : undefined} {...editForm.register('email')} />{editForm.formState.errors.email && <p className="field-error" id="edit-email-error">Enter a valid email address (maximum 255 characters).</p>}</div>
-              <div className="form-field"><label htmlFor="edit-password">Set a new password <span className="optional-label">Optional</span></label><input id="edit-password" type="password" autoComplete="new-password" aria-invalid={Boolean(editForm.formState.errors.password)} aria-describedby={editForm.formState.errors.password ? 'edit-password-error' : undefined} {...editForm.register('password')} />{editForm.formState.errors.password && <p className="field-error" id="edit-password-error">Use 8–64 characters with uppercase, lowercase, a number, and a special character.</p>}</div>
+              <div className="form-field"><label htmlFor="edit-password">{creatingUser ? 'Temporary password' : 'Set a new password'} {!creatingUser && <span className="optional-label">Optional</span>}</label><input id="edit-password" type="password" autoComplete="new-password" aria-invalid={Boolean(editForm.formState.errors.password)} aria-describedby={editForm.formState.errors.password ? 'edit-password-error' : undefined} {...editForm.register('password')} />{editForm.formState.errors.password && <p className="field-error" id="edit-password-error">Use 8–64 characters with uppercase, lowercase, a number, and a special character.</p>}{creatingUser && <p className="field-hint">The user will be asked to change this password at first sign-in.</p>}</div>
               <div className="modal-actions">
-                <button type="button" className="button button-outline" onClick={() => setEditingUser(null)}>Cancel</button>
-                <button type="submit" className="button button-primary" disabled={saving}>{saving ? 'Saving…' : <><Check size={16} /> Save changes</>}</button>
+                <button type="button" className="button button-outline" onClick={() => { setEditingUser(null); setCreatingUser(false); }}>Cancel</button>
+                <button type="submit" className="button button-primary" disabled={saving}>{saving ? 'Saving…' : <><Check size={16} /> {creatingUser ? 'Create account' : 'Save changes'}</>}</button>
               </div>
             </form>
           </section>

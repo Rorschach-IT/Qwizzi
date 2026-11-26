@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../core/api/apiError';
 import { authService } from '../api/authService';
+import { isTurnstileConfigured } from '../api/turnstileConfig';
+import { TurnstileWidget } from '../components/TurnstileWidget';
 import {
   registerSchema,
   type RegisterFormValues,
@@ -14,7 +16,12 @@ export function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [formMessage, setFormMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const navigate = useNavigate();
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
   const {
     register,
     handleSubmit,
@@ -44,12 +51,15 @@ export function RegisterPage() {
         email: values.email,
         password: values.password,
         website: values.website,
+        turnstileToken,
       });
       navigate('/login', {
         replace: true,
         state: { notice: 'Your account has been created. You can now sign in.' },
       });
     } catch (error) {
+      setTurnstileToken('');
+      setTurnstileResetKey((key) => key + 1);
       setFormMessage(
         error instanceof ApiError
           ? error.message
@@ -154,7 +164,17 @@ export function RegisterPage() {
               {...register('website')}
             />
           </div>
-          <button type="submit" className="button button-primary auth-submit" disabled={isSubmitting}>
+          <TurnstileWidget
+            key={turnstileResetKey}
+            action="register"
+            resetKey={turnstileResetKey}
+            onTokenChange={handleTurnstileToken}
+          />
+          <button
+            type="submit"
+            className="button button-primary auth-submit"
+            disabled={isSubmitting || !turnstileToken || !isTurnstileConfigured}
+          >
             {isSubmitting ? 'Creating account…' : 'Create account'}
           </button>
         </form>

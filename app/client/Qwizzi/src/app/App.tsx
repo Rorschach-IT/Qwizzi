@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { Providers } from './Providers';
-import { Router } from './Router';
+import { Router } from './router';
 import './App.css';
 
 function PageTitle() {
@@ -20,6 +20,7 @@ function PageTitle() {
       '/account/statistics': 'Your statistics',
       '/admin/users': 'Manage users',
       '/admin/quizzes': 'Manage quizzes',
+      '/admin/security': 'Security & audit',
       '/admin/statistics': 'Admin statistics',
       '/license': 'License & agreement',
       '/error': 'Something went wrong',

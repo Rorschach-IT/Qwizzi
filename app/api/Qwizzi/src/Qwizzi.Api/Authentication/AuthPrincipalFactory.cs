@@ -20,7 +20,11 @@ public static class AuthPrincipalFactory
 
             new Claim(
                 ClaimTypes.Role,
-                user.Role)
+                user.Role),
+
+            new Claim(
+                "must_change_password",
+                user.MustChangePassword.ToString())
         };
 
         var identity = new ClaimsIdentity(

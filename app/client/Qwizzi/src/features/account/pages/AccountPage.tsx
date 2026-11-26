@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { AlertTriangle, Check, LockKeyhole, Save, UserRound } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { accountService } from '../../auth/api/accountService';
+import { isTurnstileConfigured } from '../../auth/api/turnstileConfig';
+import { TurnstileWidget } from '../../auth/components/TurnstileWidget';
 import { useAuth } from '../../auth/context/useAuth';
 import {
   accountPasswordSchema,
@@ -21,6 +23,11 @@ export function AccountPage() {
   const [passwordError, setPasswordError] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
 
   const profileForm = useForm<AccountProfileValues>({
     resolver: zodResolver(accountProfileSchema),
@@ -74,12 +81,18 @@ export function AccountPage() {
     setPasswordMessage('');
     setPasswordError('');
     try {
-      await accountService.changePassword(values.currentPassword, values.newPassword);
+      await accountService.changePassword(
+        values.currentPassword,
+        values.newPassword,
+        turnstileToken,
+      );
       setPasswordMessage('Your password has been changed. Please sign in again.');
       passwordForm.reset();
       clearSession();
       navigate('/login', { replace: true });
     } catch (error) {
+      setTurnstileToken('');
+      setTurnstileResetKey((key) => key + 1);
       setPasswordError(
         error instanceof Error ? error.message : 'Unable to change your password.',
       );
@@ -168,7 +181,17 @@ export function AccountPage() {
               <input id="confirm-new-password" type="password" autoComplete="new-password" aria-invalid={Boolean(passwordForm.formState.errors.confirmPassword)} aria-describedby={passwordForm.formState.errors.confirmPassword ? 'confirm-new-password-error' : undefined} {...passwordForm.register('confirmPassword')} />
               {passwordForm.formState.errors.confirmPassword && <p className="field-error" id="confirm-new-password-error">{passwordForm.formState.errors.confirmPassword.message}</p>}
             </div>
-            <button type="submit" className="button button-primary" disabled={passwordForm.formState.isSubmitting}>
+            <TurnstileWidget
+              key={turnstileResetKey}
+              action="password-change"
+              resetKey={turnstileResetKey}
+              onTokenChange={handleTurnstileToken}
+            />
+            <button
+              type="submit"
+              className="button button-primary"
+              disabled={passwordForm.formState.isSubmitting || !turnstileToken || !isTurnstileConfigured}
+            >
               {passwordForm.formState.isSubmitting ? 'Updating…' : 'Update password'}
             </button>
           </form>

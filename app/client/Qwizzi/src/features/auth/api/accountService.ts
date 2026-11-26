@@ -14,10 +14,10 @@ export const accountService = {
       body: { email },
     }),
 
-  changePassword: (currentPassword: string, newPassword: string) =>
+  changePassword: (currentPassword: string, newPassword: string, turnstileToken: string) =>
     apiRequest<void>('/account/password', {
       method: 'PATCH',
-      body: { currentPassword, newPassword },
+      body: { currentPassword, newPassword, turnstileToken },
     }),
 
   deleteAccount: () =>

@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../../core/api/apiError';
 import { authService } from '../api/authService';
+import { isTurnstileConfigured } from '../api/turnstileConfig';
+import { TurnstileWidget } from '../components/TurnstileWidget';
 import { useAuth } from '../context/useAuth';
 import { loginSchema, type LoginFormValues } from '../validators/authSchemas';
 
@@ -17,10 +19,16 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [formMessage, setFormMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [showTurnstile, setShowTurnstile] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn } = useAuth();
   const state = location.state as LoginLocationState | null;
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
   const {
     register,
     handleSubmit,
@@ -44,13 +52,37 @@ export function LoginPage() {
     }
 
     try {
-      const user = await authService.login(values);
+      const user = await authService.login({
+        ...values,
+        turnstileToken: showTurnstile ? turnstileToken : undefined,
+      });
       signIn(user);
       const target = state?.from?.startsWith('/') ? state.from : '/';
       navigate(target, { replace: true });
     } catch (error) {
       if (error instanceof ApiError) {
-        setFormMessage('Invalid email or password.');
+        if (error.code === 'turnstile_required' || error.code === 'turnstile_invalid') {
+          setShowTurnstile(true);
+          setTurnstileToken('');
+          setTurnstileResetKey((key) => key + 1);
+          setFormMessage(error.message);
+          return;
+        }
+
+        if (error.status === 401) {
+          setShowTurnstile(true);
+        }
+        if (showTurnstile) {
+          setTurnstileToken('');
+          setTurnstileResetKey((key) => key + 1);
+        }
+        setFormMessage(error.status === 423
+          ? 'Your account is temporarily locked after too many unsuccessful sign-in attempts. Please try again later.'
+          : error.status === 429
+            ? 'Too many sign-in requests. Please wait a moment and try again.'
+            : error.status === 503
+              ? error.message
+              : 'Invalid email or password.');
       } else {
         setFormMessage("We couldn't reach the service. Please try again.");
       }
@@ -142,7 +174,20 @@ export function LoginPage() {
             />
           </div>
 
-          <button type="submit" className="button button-primary auth-submit" disabled={isSubmitting}>
+          {showTurnstile && (
+            <TurnstileWidget
+              key={turnstileResetKey}
+              action="login"
+              resetKey={turnstileResetKey}
+              onTokenChange={handleTurnstileToken}
+            />
+          )}
+
+          <button
+            type="submit"
+            className="button button-primary auth-submit"
+            disabled={isSubmitting || (showTurnstile && (!turnstileToken || !isTurnstileConfigured))}
+          >
             {isSubmitting ? 'Signing in…' : 'Sign in'}
           </button>
           <p id="login-error" className="sr-only">

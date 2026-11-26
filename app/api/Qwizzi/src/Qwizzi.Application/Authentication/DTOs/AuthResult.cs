@@ -2,7 +2,9 @@
 
 public sealed record AuthResult(
     AuthenticatedUserDto? User,
-    AuthError Error)
+    AuthError Error,
+    Guid? TargetUserId = null,
+    string? TargetUsername = null)
 {
     public bool IsSuccess =>
         Error == AuthError.None && User is not null;
@@ -12,8 +14,8 @@ public sealed record AuthResult(
         return new AuthResult(user, AuthError.None);
     }
 
-    public static AuthResult Failure(AuthError error)
+    public static AuthResult Failure(AuthError error, Guid? targetUserId = null, string? targetUsername = null)
     {
-        return new AuthResult(null, error);
+        return new AuthResult(null, error, targetUserId, targetUsername);
     }
 }

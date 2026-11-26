@@ -1,8 +1,11 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { AccountPage } from '../features/account/pages/AccountPage';
+import { ChangePasswordPage } from '../features/account/pages/ChangePasswordPage';
 import { StatisticsPage } from '../features/account/pages/StatisticsPage';
 import { AdminUsersPage } from '../features/admin/pages/AdminUsersPage';
 import { AdminStatisticsPage } from '../features/admin/pages/AdminStatisticsPage';
+import { AdminSecurityPage } from '../features/admin/pages/AdminSecurityPage';
+import { AdminQuizzesPage } from '../features/admin/pages/AdminQuizzesPage';
 import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { RegisterPage } from '../features/auth/pages/RegisterPage';
@@ -12,6 +15,7 @@ import { AdminRoute } from './guards/AdminRoute';
 import { HomePage } from '../features/home/pages/HomePage';
 import { BrowsePage } from '../features/quizzes/pages/BrowsePage';
 import { QuizManagerPage } from '../features/quizzes/pages/QuizManagerPage';
+import { QuizPlayPage } from '../features/quiz-play/pages/QuizPlayPage';
 import { LicensePage, NotFoundPage, ErrorPage } from '../features/system/pages/SystemPages';
 import { SiteLayout } from '../shared/layout/SiteLayout';
 
@@ -21,6 +25,7 @@ export function Router() {
       <Route element={<SiteLayout />}>
         <Route index element={<HomePage />} />
         <Route path="browse" element={<BrowsePage />} />
+        <Route path="quiz/:quizId" element={<QuizPlayPage />} />
         <Route
           path="quiz-manager"
           element={
@@ -34,6 +39,14 @@ export function Router() {
           element={
             <ProtectedRoute>
               <AccountPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="account/change-password"
+          element={
+            <ProtectedRoute>
+              <ChangePasswordPage />
             </ProtectedRoute>
           }
         />
@@ -55,7 +68,8 @@ export function Router() {
         >
           <Route index element={<Navigate to="users" replace />} />
           <Route path="users" element={<AdminUsersPage />} />
-          <Route path="quizzes" element={<div className="page-container" />} />
+          <Route path="quizzes" element={<AdminQuizzesPage />} />
+          <Route path="security" element={<AdminSecurityPage />} />
           <Route path="statistics" element={<AdminStatisticsPage />} />
         </Route>
         <Route path="license" element={<LicensePage />} />

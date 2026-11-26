@@ -5,6 +5,7 @@ export interface AuthUser {
   username: string;
   email: string;
   role: 'User' | 'Administrator' | string;
+  mustChangePassword?: boolean;
 }
 
 export const authService = {
@@ -13,6 +14,7 @@ export const authService = {
     password: string;
     rememberMe: boolean;
     website: string;
+    turnstileToken?: string;
   }) =>
     apiRequest<AuthUser>('/auth/login', {
       method: 'POST',
@@ -24,6 +26,7 @@ export const authService = {
     email: string;
     password: string;
     website: string;
+    turnstileToken: string;
   }) =>
     apiRequest<AuthUser>('/auth/register', {
       method: 'POST',

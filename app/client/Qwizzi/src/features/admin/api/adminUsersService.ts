@@ -1,4 +1,5 @@
 import { apiRequest } from '../../../core/api/httpClient';
+import type { AuthUser } from '../../auth/api/authService';
 
 export interface AdminUser {
   userId: string;
@@ -13,6 +14,9 @@ export interface AdminUser {
 export type UserSortField = 'username' | 'status' | 'role' | 'createdAt';
 
 export const adminUsersService = {
+  create: (values: { username: string; email: string; temporaryPassword: string }) =>
+    apiRequest<AuthUser>('/admin/users', { method: 'POST', body: values }),
+
   list: (sortBy: UserSortField, sortOrder: 'asc' | 'desc') =>
     apiRequest<AdminUser[]>(
       `/admin/users?sortBy=${sortBy}&sortOrder=${sortOrder}`,

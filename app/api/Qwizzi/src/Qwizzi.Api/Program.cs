@@ -7,8 +7,12 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Qwizzi.Api.Authentication;
 using Qwizzi.Api.ErrorHandling;
+using Qwizzi.Api.Security;
 using Qwizzi.Application.Abstractions.Persistence;
 using Qwizzi.Application.Authentication;
+using Qwizzi.Application.Security;
+using Qwizzi.Application.Quizzes;
+using Qwizzi.Application.Images;
 using Qwizzi.Domain.Entities;
 using Qwizzi.Domain.Enums;
 using Qwizzi.Infrastructure.Persistence;
@@ -97,6 +101,8 @@ builder.Services.AddAuthorization(options =>
 
 // Registers the EF Core implementation of user persistence operations.
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IQuizRepository, QuizRepository>();
+builder.Services.AddScoped<IQuizService, QuizService>();
 
 
 // Resolves IUnitOfWork to the existing scoped AppDbContext.
@@ -125,6 +131,13 @@ builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 // responsibility.
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ISecurityAuditService, SecurityAuditService>();
+builder.Services.AddScoped<IImageAssetService, ImageAssetService>();
+builder.Services.AddSingleton<LoginChallengeTracker>();
+builder.Services.AddHttpClient<ITurnstileVerifier, CloudflareTurnstileVerifier>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(5);
+});
 
 
 // Registers controllers and the MVC services required
@@ -177,7 +190,7 @@ builder.Services.AddRateLimiter(options =>
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = 10,
-                Window = TimeSpan.FromMinutes(120),
+                Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0,
                 AutoReplenishment = true
             }));
@@ -271,11 +284,63 @@ app.UseRouting();
 // then populates HttpContext.User.
 app.UseAuthentication();
 
+app.Use(async (context, next) =>
+{
+    var pendingPasswordChange = context.User.HasClaim("must_change_password", "True");
+    var allowedPaths = new[]
+    {
+        "/api/account/password",
+        "/api/auth/me",
+        "/api/auth/logout",
+        "/api/auth/csrf"
+    };
+    if (pendingPasswordChange
+        && context.Request.Path.StartsWithSegments("/api")
+        && !allowedPaths.Contains(context.Request.Path.Value, StringComparer.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        var userIdValue = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        Guid? userId = Guid.TryParse(userIdValue, out var parsedId) ? parsedId : null;
+        await context.RequestServices.GetRequiredService<ISecurityAuditService>().RecordAsync(
+            userId,
+            context.User.Identity?.Name,
+            context.Connection.RemoteIpAddress?.ToString(),
+            "AccessDenied",
+            $"Password change required before {context.Request.Method} {context.Request.Path}",
+            false,
+            context.RequestAborted);
+        await context.Response.WriteAsJsonAsync(new { message = "You must change your password before continuing." });
+        return;
+    }
+
+    await next();
+});
+
 app.UseExceptionHandler();
 
 
 // Enforces endpoint authorization policies using the current identity.
 app.UseAuthorization();
+
+app.Use(async (context, next) =>
+{
+    await next();
+    if (context.Response.StatusCode == StatusCodes.Status403Forbidden
+        && context.Request.Path.StartsWithSegments("/api"))
+    {
+        var userIdValue = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        Guid? userId = Guid.TryParse(userIdValue, out var parsedId) ? parsedId : null;
+        var audit = context.RequestServices.GetRequiredService<ISecurityAuditService>();
+        await audit.RecordAsync(
+            userId,
+            context.User.Identity?.Name,
+            context.Connection.RemoteIpAddress?.ToString(),
+            "AccessDenied",
+            $"Access denied to {context.Request.Method} {context.Request.Path}",
+            false,
+            context.RequestAborted);
+    }
+});
 
 
 // Enforces rate-limiting policies selected by endpoint metadata.

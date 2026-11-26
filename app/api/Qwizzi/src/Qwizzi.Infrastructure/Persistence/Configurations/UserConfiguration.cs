@@ -49,6 +49,26 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("timestamp with time zone")
             .IsRequired();
 
+        builder.Property(user => user.FailedLoginAttempts)
+            .HasColumnName("failed_login_attempts")
+            .IsRequired();
+
+        builder.Property(user => user.LockoutLevel)
+            .HasColumnName("lockout_level")
+            .IsRequired();
+
+        builder.Property(user => user.LockoutUntil)
+            .HasColumnName("lockout_until")
+            .HasColumnType("timestamp with time zone");
+
+        builder.Property(user => user.MustChangePassword)
+            .HasColumnName("must_change_password")
+            .IsRequired();
+
+        builder.Property(user => user.TemporaryPasswordExpiresAt)
+            .HasColumnName("temporary_password_expires_at")
+            .HasColumnType("timestamp with time zone");
+
         builder.HasMany(user => user.CreatedQuizzes)
             .WithOne(quiz => quiz.Author)
             .HasForeignKey(quiz => quiz.AuthorId)
