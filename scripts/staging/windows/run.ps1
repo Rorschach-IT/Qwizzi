@@ -4,7 +4,7 @@ $Host.UI.RawUI.WindowTitle = "Qwizzi staging compose"
 Write-Host "=== Qwizzi: starting staging profile ===" -ForegroundColor Cyan
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = (Resolve-Path (Join-Path $scriptDir "..\..\..")).Path
+$repoRoot = (Resolve-Path (Join-Path $scriptDir "..\..\..\start\staging")).Path
 
 function Assert-CommandExists {
     param([string]$CommandName)
